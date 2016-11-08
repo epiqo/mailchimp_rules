@@ -1,0 +1,5 @@
+name = MailChimp Rules
+description = Minimalistic MailChimp integration for rules.
+package = MailChimp
+core = 7.x
+dependencies[] = rules
