@@ -4,3 +4,89 @@
  * @file
  * Mailchimp rules module
  */
+
+/**
+ * Returns a new instance of an MailChimp API class.
+ *
+ * @param string $class_name
+ *   The class name you want an instance from.
+ *
+ * @param string $api_key
+ *   The MailChimp api key to use if not the default, retrieved from the
+ *   variable mailchimp_api_key.
+ *
+ * @return $api_key
+ *   Either an instance of an MailChimp API class or NULL, if the library is
+ *   missing or could not be loaded.
+ */
+function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NULL) {
+  $class_name = 'Mailchimp\\' . $class_name;
+
+  // todo: allow the mailchimp library to be installed via libraries.
+
+  // Check if the composer autoload file loaded the mailchimp library.
+  if (!class_exists($class_name)) {
+
+    $msg = t('Failed to load MailChimp PHP library. Please refer to the installation requirements.');
+    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
+    drupal_set_message($msg, 'error', FALSE);
+
+    return NULL;
+  }
+
+  if (!$api_key) {
+    $api_key = variable_get('mailchimp_api_key');
+  }
+
+  if (empty($api_key)) {
+    $msg = t('Please set an API key for the MailChimp integration.');
+    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
+    drupal_set_message($msg, 'error', FALSE);
+  }
+
+  // Set the timeout to something that won't take down the Drupal site:
+  $timeout = 60;
+
+  return new $class_name($api_key, 'apikey', $timeout);
+}
+
+/**
+ * Retrieves the lists for the set API key.
+ *
+ * @return array
+ *   A list of lists, with the id as key and an array as value. The inner array
+ *   has a name a string and merge_fields as an array. This one has the tag,
+ *   name, type of a merge field and uses the merge fields id as a key.
+ */
+function mailchimp_rules_retrieve_lists() {
+  $lists_api = mailchimp_rules_get_api_object('MailchimpLists');
+
+  $lists = array();
+  try {
+    // Only get the first 500 for now.
+    $res = $lists_api->getLists(array('count' => 500));
+
+    foreach ($res->lists as $list) {
+      $lists[$list->id] = array(
+        'name' => $list->name,
+        'merge_fields' => array()
+      );
+
+      // Retrieve the merge fields, again hard coding the max amount to 500.
+      $merge_fields = $lists_api->getMergeFields($list->id, array('count' => 500));
+      foreach ($merge_fields->merge_fields as $merge_field) {
+        $lists[$list->id]['merge_fields'][$merge_field->merge_id] = array(
+          'tag' => $merge_field->tag,
+          'name' => $merge_field->name,
+          'type' => $merge_field->type,
+        );
+      }
+    }
+  } catch (MailchimpAPIException $exception) {
+    $msg = t('Could not retrieve the mailchimp lists.');
+    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
+    drupal_set_message($msg, 'error', FALSE);
+  }
+
+  return $lists;
+}
