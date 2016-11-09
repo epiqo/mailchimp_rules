@@ -27,9 +27,9 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
   // Check if the composer autoload file loaded the mailchimp library.
   if (!class_exists($class_name)) {
 
-    $msg = t('Failed to load MailChimp PHP library. Please refer to the installation requirements.');
+    $msg = 'Failed to load MailChimp PHP library. Please refer to the installation requirements.';
     watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message($msg, 'error', FALSE);
+    drupal_set_message(t($msg), 'error', FALSE);
 
     return NULL;
   }
@@ -39,9 +39,9 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
   }
 
   if (empty($api_key)) {
-    $msg = t('Please set an API key for the MailChimp integration.');
+    $msg = 'Please set an API key for the MailChimp integration.';
     watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message($msg, 'error', FALSE);
+    drupal_set_message(t($msg), 'error', FALSE);
   }
 
   // Set the timeout to something that won't take down the Drupal site:
@@ -83,9 +83,9 @@ function mailchimp_rules_retrieve_lists() {
       }
     }
   } catch (MailchimpAPIException $exception) {
-    $msg = t('Could not retrieve the mailchimp lists.');
+    $msg = 'Could not retrieve the mailchimp lists.';
     watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message($msg, 'error', FALSE);
+    drupal_set_message(t($msg), 'error', FALSE);
   }
 
   return $lists;
