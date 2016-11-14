@@ -104,3 +104,27 @@ function mailchimp_rules_subscribe_mail($list_id, $mail, $double_optin = FALSE) 
     drupal_set_message(t('Could not subscribe mail @mail to mailchimp list with id @list_id.', $params), 'error', FALSE);
   }
 }
+
+/**
+ * Unsubscribe the given user from the given list.
+ *
+ * @param string $list_id
+ *   The ID for the list to which the mail should be subscribed.
+ * @param string $mail
+ *   The mail address the should be subscribed.
+ */
+function mailchimp_rules_unsubscribe_mail($list_id, $mail) {
+  $lists_api = mailchimp_rules_get_api_object('MailchimpLists');
+
+  try {
+    $lists_api->removeMember($list_id, $mail);
+  }
+  catch (MailchimpAPIException $exception) {
+    $params = array(
+      '@mail' => $mail,
+      '@list_id' => $list_id,
+    );
+    watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
+    drupal_set_message(t('Could not subscribe mail @mail to mailchimp list with id @list_id.', $params), 'error', FALSE);
+  }
+}
