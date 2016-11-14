@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Install routines for mailchimp rules.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function mailchimp_rules_uninstall() {
+  if (!module_exists('mailchimp')) {
+    variable_del('mailchimp_api_key');
+  }
+}
