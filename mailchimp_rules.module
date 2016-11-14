@@ -60,7 +60,6 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
   // Check if the composer autoload file loaded the mailchimp library.
   if (!class_exists($class_name)) {
     watchdog('mailchimp_rules', 'Failed to load MailChimp PHP library. Please refer to the installation requirements.', array(), WATCHDOG_ERROR);
-    drupal_set_message(t('Failed to load MailChimp PHP library. Please refer to the installation requirements.'), 'error', FALSE);
 
     return NULL;
   }
@@ -71,7 +70,6 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
 
   if (empty($api_key)) {
     watchdog('mailchimp_rules', 'Please set an API key for the MailChimp integration.', array(), WATCHDOG_ERROR);
-    drupal_set_message(t('Please set an API key for the MailChimp integration.'), 'error', FALSE);
   }
 
   // Set the timeout to something that won't take down the Drupal site:
@@ -100,7 +98,6 @@ function mailchimp_rules_retrieve_lists() {
   }
   catch (MailchimpAPIException $exception) {
     watchdog('mailchimp_rules', 'Could not retrieve the mailchimp lists.', array(), WATCHDOG_ERROR);
-    drupal_set_message(t('Could not retrieve the mailchimp lists.'), 'error', FALSE);
   }
 
   return $lists;
@@ -139,7 +136,6 @@ function mailchimp_rules_subscribe_mail($list_id, $mail, $merge_fields = array()
       '@list_id' => $list_id,
     );
     watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
-    drupal_set_message(t('Could not subscribe mail @mail to mailchimp list with id @list_id.', $params), 'error', FALSE);
   }
 }
 
@@ -163,6 +159,5 @@ function mailchimp_rules_unsubscribe_mail($list_id, $mail) {
       '@list_id' => $list_id,
     );
     watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
-    drupal_set_message(t('Could not subscribe mail @mail to mailchimp list with id @list_id.', $params), 'error', FALSE);
   }
 }
