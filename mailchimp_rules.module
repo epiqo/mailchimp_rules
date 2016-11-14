@@ -9,6 +9,34 @@ use \Mailchimp\MailchimpLists;
 use \Mailchimp\MailchimpAPIException;
 
 /**
+ * Implements hook_libraries_info().
+ */
+function mailchimp_rules_libraries_info() {
+  $libraries['mailchimp'] = array(
+    'name' => 'MailChimp API',
+    'vendor url' => 'https://github.com/thinkshout/mailchimp-api-php',
+    'download url' => 'https://github.com/thinkshout/mailchimp-api-php/archive/v1.0.5.zip',
+    'version arguments' => array(
+      'file' => 'composer.json',
+      'pattern' => '/"version": "([0-9a-zA-Z.-]+)"/',
+    ),
+    'files' => array(
+      'php' => array(
+        'src/Mailchimp.php',
+        'src/MailchimpAPIException',
+        'src/MailchimpCampaigns.php',
+        'src/MailchimpLists.php',
+        'src/MailchimpReports.php',
+        'src/MailchimpTemplates.php',
+        'vendor/autoload.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
+
+/**
  * Returns a new instance of an MailChimp API class.
  *
  * @param string $class_name
@@ -24,7 +52,10 @@ use \Mailchimp\MailchimpAPIException;
 function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NULL) {
   $class_name = 'Mailchimp\\' . $class_name;
 
-  // todo: allow the mailchimp library to be installed via libraries.
+  // Try to load the library via the libraries module.
+  if (module_exists('libraries')) {
+    $library = libraries_load('mailchimp');
+  }
 
   // Check if the composer autoload file loaded the mailchimp library.
   if (!class_exists($class_name)) {
