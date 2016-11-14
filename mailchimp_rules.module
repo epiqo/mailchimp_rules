@@ -2,8 +2,11 @@
 
 /**
  * @file
- * Mailchimp rules module
+ * Mailchimp rules module.
  */
+
+use \Mailchimp\MailchimpLists;
+use \Mailchimp\MailchimpAPIException;
 
 /**
  * Returns a new instance of an MailChimp API class.
@@ -25,10 +28,8 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
 
   // Check if the composer autoload file loaded the mailchimp library.
   if (!class_exists($class_name)) {
-
-    $msg = 'Failed to load MailChimp PHP library. Please refer to the installation requirements.';
-    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message(t($msg), 'error', FALSE);
+    watchdog('mailchimp_rules', 'Failed to load MailChimp PHP library. Please refer to the installation requirements.', array(), WATCHDOG_ERROR);
+    drupal_set_message(t('Failed to load MailChimp PHP library. Please refer to the installation requirements.'), 'error', FALSE);
 
     return NULL;
   }
@@ -38,9 +39,8 @@ function mailchimp_rules_get_api_object($class_name = 'Mailchimp', $api_key = NU
   }
 
   if (empty($api_key)) {
-    $msg = 'Please set an API key for the MailChimp integration.';
-    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message(t($msg), 'error', FALSE);
+    watchdog('mailchimp_rules', 'Please set an API key for the MailChimp integration.', array(), WATCHDOG_ERROR);
+    drupal_set_message(t('Please set an API key for the MailChimp integration.'), 'error', FALSE);
   }
 
   // Set the timeout to something that won't take down the Drupal site:
@@ -68,10 +68,39 @@ function mailchimp_rules_retrieve_lists() {
     }
   }
   catch (MailchimpAPIException $exception) {
-    $msg = 'Could not retrieve the mailchimp lists.';
-    watchdog('mailchimp_rules', $msg, array(), WATCHDOG_ERROR);
-    drupal_set_message(t($msg), 'error', FALSE);
+    watchdog('mailchimp_rules', 'Could not retrieve the mailchimp lists.', array(), WATCHDOG_ERROR);
+    drupal_set_message(t('Could not retrieve the mailchimp lists.'), 'error', FALSE);
   }
 
   return $lists;
+}
+
+/**
+ * Subscribes the given user to the given list.
+ *
+ * @param string $list_id
+ *   The ID for the list to which the mail should be subscribed.
+ * @param string $mail
+ *   The mail address the should be subscribed.
+ * @param bool $double_optin
+ *   Set to true if the the subscription sould require a double opt in.
+ */
+function mailchimp_rules_subscribe_mail($list_id, $mail, $double_optin = FALSE) {
+  $lists_api = mailchimp_rules_get_api_object('MailchimpLists');
+
+  try {
+    $parameters = array(
+      'status' => ($double_optin) ? MailchimpLists::MEMBER_STATUS_PENDING : MailchimpLists::MEMBER_STATUS_SUBSCRIBED,
+    );
+
+    $lists_api->addOrUpdateMember($list_id, $mail, $parameters);
+  }
+  catch (MailchimpAPIException $exception) {
+    $params = array(
+      '@mail' => $mail,
+      '@list_id' => $list_id,
+    );
+    watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
+    drupal_set_message(t('Could not subscribe mail @mail to mailchimp list with id @list_id.', $params), 'error', FALSE);
+  }
 }
