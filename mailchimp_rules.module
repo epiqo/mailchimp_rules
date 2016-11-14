@@ -97,7 +97,9 @@ function mailchimp_rules_retrieve_lists() {
     }
   }
   catch (MailchimpAPIException $exception) {
-    watchdog('mailchimp_rules', 'Could not retrieve the mailchimp lists.', array(), WATCHDOG_ERROR);
+    watchdog('mailchimp_rules',
+      'Could not retrieve the mailchimp lists due to @exception.',
+      array('@exception' => $exception->getMessage()), WATCHDOG_ERROR);
   }
 
   return $lists;
@@ -131,11 +133,14 @@ function mailchimp_rules_subscribe_mail($list_id, $mail, $merge_fields = array()
     $lists_api->addOrUpdateMember($list_id, $mail, $parameters);
   }
   catch (MailchimpAPIException $exception) {
-    $params = array(
-      '@mail' => $mail,
-      '@list_id' => $list_id,
-    );
-    watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
+    watchdog('mailchimp_rules',
+      'Could not subscribe mail @mail to mailchimp list with id @list_id due to @exception.',
+      array(
+        '@mail' => $mail,
+        '@list_id' => $list_id,
+        '@exception' => $exception->getMessage(),
+      ),
+      WATCHDOG_ERROR);
   }
 }
 
@@ -154,10 +159,13 @@ function mailchimp_rules_unsubscribe_mail($list_id, $mail) {
     $lists_api->removeMember($list_id, $mail);
   }
   catch (MailchimpAPIException $exception) {
-    $params = array(
-      '@mail' => $mail,
-      '@list_id' => $list_id,
-    );
-    watchdog('mailchimp_rules', 'Could not subscribe mail @mail to mailchimp list with id @list_id.', $params, WATCHDOG_ERROR);
+    watchdog('mailchimp_rules',
+      'Could not subscribe mail @mail to mailchimp list with id @list_id due to @exception.',
+      array(
+        '@mail' => $mail,
+        '@list_id' => $list_id,
+        '@exception' => $exception->getMessage(),
+      ),
+      WATCHDOG_ERROR);
   }
 }
