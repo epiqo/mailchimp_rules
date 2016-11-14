@@ -69,7 +69,7 @@ function mailchimp_rules_rules_action_info() {
       'merge_fields' => array(
         'type' => 'list<text>',
         'label' => t('Merge fields'),
-        'description' => t("For each line you can enter a merge field in the form of 'merge_field': '[replacement_pattern]'."),
+        'description' => t("For each line you can enter a merge field in the form of 'merge_field': '[replacement_pattern]'. You can view the merge field tags in the settings for the selected list."),
         'restriction' => 'input',
       ),
     ),
