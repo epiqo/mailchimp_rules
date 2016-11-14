@@ -82,16 +82,23 @@ function mailchimp_rules_retrieve_lists() {
  *   The ID for the list to which the mail should be subscribed.
  * @param string $mail
  *   The mail address the should be subscribed.
+ * @param array $merge_fields
+ *   An associative array of merge fields to be synced, using the key for the
+ *   tag/name and the value for the merge fields value.
  * @param bool $double_optin
  *   Set to true if the the subscription sould require a double opt in.
  */
-function mailchimp_rules_subscribe_mail($list_id, $mail, $double_optin = FALSE) {
+function mailchimp_rules_subscribe_mail($list_id, $mail, $merge_fields = array(), $double_optin = FALSE) {
   $lists_api = mailchimp_rules_get_api_object('MailchimpLists');
 
   try {
     $parameters = array(
       'status' => ($double_optin) ? MailchimpLists::MEMBER_STATUS_PENDING : MailchimpLists::MEMBER_STATUS_SUBSCRIBED,
     );
+
+    if (!empty($merge_fields)) {
+      $parameters['merge_fields'] = $merge_fields;
+    }
 
     $lists_api->addOrUpdateMember($list_id, $mail, $parameters);
   }
