@@ -28,7 +28,6 @@ function mailchimp_rules_rules_action_info() {
       ),
     ),
     'group' => t('MailChimp Rules'),
-    'access callback' => 'mailchimp_rules_access_callback',
     'base' => 'mailchimp_rules_rules_action_mail_subscribe_list',
   );
 
@@ -49,7 +48,6 @@ function mailchimp_rules_rules_action_info() {
       ),
     ),
     'group' => t('MailChimp Rules'),
-    'access callback' => 'mailchimp_rules_access_callback',
     'base' => 'mailchimp_rules_rules_action_mail_unsubscribe_list',
   );
 
